@@ -1,0 +1,513 @@
+/**
+ * 2048 Game Styles
+ */
+
+/* ======================
+   CSS Variables
+   ====================== */
+:root {
+    --game2048-font: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --game2048-bg: var(--fun-color-bg, #f8fafc);
+    --game2048-text: var(--fun-color-text, #0f172a);
+    --game2048-accent: var(--fun-color-accent, #2563eb);
+    --game2048-surface: var(--fun-color-surface, rgba(255, 255, 255, 0.94));
+    --game2048-border: var(--fun-color-border, rgba(15, 23, 42, 0.1));
+
+    /* Board colors */
+    --game2048-board-bg: rgba(187, 173, 160, 0.35);
+    --game2048-tile-radius: 6px;
+    --game2048-tile-gap: 8px;
+
+    /* Tile colors (classic 2048 scheme) */
+    --tile-0: rgba(238, 228, 218, 0.35);
+    --tile-2: #eee4da;
+    --tile-4: #ede0c8;
+    --tile-8: #f2b179;
+    --tile-16: #f59563;
+    --tile-32: #f67c5f;
+    --tile-64: #f65e3b;
+    --tile-128: #edcf72;
+    --tile-256: #edcc61;
+    --tile-512: #edc850;
+    --tile-1024: #edc53f;
+    --tile-2048: #edc22e;
+
+    --tile-text-dark: #776e65;
+    --tile-text-light: #f9f6f2;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --game2048-bg: var(--fun-color-bg, #0b1120);
+        --game2048-text: var(--fun-color-text, #f8fafc);
+        --game2048-accent: var(--fun-color-accent, #38bdf8);
+        --game2048-surface: var(--fun-color-surface, rgba(15, 23, 42, 0.8));
+        --game2048-border: var(--fun-color-border, rgba(248, 250, 252, 0.1));
+        --game2048-board-bg: rgba(187, 173, 160, 0.2);
+    }
+}
+
+/* ======================
+   Base Styles
+   ====================== */
+* {
+    box-sizing: border-box;
+}
+
+body.game2048 {
+    background: var(--game2048-bg);
+    color: var(--game2048-text);
+    font-family: var(--game2048-font);
+    margin: 0;
+    padding-top: 52px;
+    overflow-x: hidden;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Visually hidden for screen readers */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ======================
+   Container
+   ====================== */
+.game2048__container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+    min-height: calc(100vh - 52px);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ======================
+   Info Section
+   ====================== */
+.game2048__info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.game2048__score-box {
+    flex: 1;
+    background: var(--game2048-surface);
+    border: 1px solid var(--game2048-border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    text-align: center;
+}
+
+.game2048__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--game2048-text);
+    opacity: 0.6;
+    margin-bottom: 0.25rem;
+}
+
+.game2048__timer,
+.game2048__moves {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--game2048-accent);
+}
+
+.game2048__new-game {
+    flex-shrink: 0;
+    background: var(--game2048-accent);
+    color: #ffffff;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+    font-family: var(--game2048-font);
+}
+
+.game2048__new-game:hover {
+    background: color-mix(in srgb, var(--game2048-accent) 85%, #000);
+}
+
+.game2048__new-game:active {
+    transform: scale(0.98);
+}
+
+/* ======================
+   Game Board
+   ====================== */
+.game2048__board-container {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.game2048__board {
+    background: var(--game2048-board-bg);
+    border-radius: 8px;
+    padding: var(--game2048-tile-gap);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: var(--game2048-tile-gap);
+    aspect-ratio: 1;
+}
+
+.game2048__tile {
+    background: var(--tile-0);
+    border-radius: var(--game2048-tile-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--tile-text-dark);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.game2048__tile--filled {
+    animation: tile-appear 0.2s ease;
+}
+
+/* Tile colors by value */
+.game2048__tile[data-value="2"] { background: var(--tile-2); color: var(--tile-text-dark); font-size: 2.5rem; }
+.game2048__tile[data-value="4"] { background: var(--tile-4); color: var(--tile-text-dark); font-size: 2.5rem; }
+.game2048__tile[data-value="8"] { background: var(--tile-8); color: var(--tile-text-light); font-size: 2.5rem; }
+.game2048__tile[data-value="16"] { background: var(--tile-16); color: var(--tile-text-light); font-size: 2.25rem; }
+.game2048__tile[data-value="32"] { background: var(--tile-32); color: var(--tile-text-light); font-size: 2.25rem; }
+.game2048__tile[data-value="64"] { background: var(--tile-64); color: var(--tile-text-light); font-size: 2.25rem; }
+.game2048__tile[data-value="128"] { background: var(--tile-128); color: var(--tile-text-light); font-size: 2rem; }
+.game2048__tile[data-value="256"] { background: var(--tile-256); color: var(--tile-text-light); font-size: 2rem; }
+.game2048__tile[data-value="512"] { background: var(--tile-512); color: var(--tile-text-light); font-size: 2rem; }
+.game2048__tile[data-value="1024"] { background: var(--tile-1024); color: var(--tile-text-light); font-size: 1.75rem; }
+.game2048__tile[data-value="2048"] { background: var(--tile-2048); color: var(--tile-text-light); font-size: 1.75rem; }
+
+@keyframes tile-appear {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ======================
+   Controls
+   ====================== */
+.game2048__controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.game2048__controls-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.game2048__btn {
+    background: var(--game2048-surface);
+    border: 2px solid var(--game2048-border);
+    border-radius: 8px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--game2048-accent);
+    font-family: var(--game2048-font);
+}
+
+.game2048__btn:hover {
+    background: var(--game2048-accent);
+    color: #ffffff;
+    border-color: var(--game2048-accent);
+}
+
+.game2048__btn:active {
+    transform: scale(0.95);
+}
+
+.game2048__btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Primary button variant */
+.game2048__btn--primary {
+    background: var(--game2048-accent);
+    color: #ffffff;
+    border-color: var(--game2048-accent);
+    width: auto;
+    height: auto;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+}
+
+.game2048__btn--primary:hover {
+    background: color-mix(in srgb, var(--game2048-accent) 85%, #000);
+}
+
+/* Secondary button variant */
+.game2048__btn--secondary {
+    background: transparent;
+    color: var(--game2048-accent);
+    border-color: var(--game2048-accent);
+    width: auto;
+    height: auto;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+}
+
+.game2048__btn--secondary:hover {
+    background: color-mix(in srgb, var(--game2048-accent) 10%, transparent);
+}
+
+/* ======================
+   Leaderboard & History
+   ====================== */
+.game2048__section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    color: var(--game2048-text);
+}
+
+.game2048__leaderboard,
+.game2048__history {
+    background: var(--game2048-surface);
+    border: 1px solid var(--game2048-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.game2048__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.game2048__table thead {
+    border-bottom: 2px solid var(--game2048-border);
+}
+
+.game2048__table th {
+    padding: 0.5rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--game2048-text);
+    opacity: 0.7;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.game2048__table td {
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid var(--game2048-border);
+    color: var(--game2048-text);
+}
+
+.game2048__table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.game2048__table tbody tr:hover {
+    background: color-mix(in srgb, var(--game2048-accent) 5%, transparent);
+}
+
+.game2048__loading,
+.game2048__empty,
+.game2048__error {
+    text-align: center;
+    padding: 2rem;
+    color: var(--game2048-text);
+    opacity: 0.6;
+}
+
+/* ======================
+   Modal
+   ====================== */
+.game2048__modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.game2048__modal--visible {
+    display: flex;
+}
+
+.game2048__modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.game2048__modal-content {
+    position: relative;
+    background: var(--game2048-surface);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+    animation: modal-appear 0.3s ease;
+}
+
+@keyframes modal-appear {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.game2048__modal-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: var(--game2048-accent);
+}
+
+.game2048__modal-message {
+    font-size: 1rem;
+    margin: 0 0 1.5rem 0;
+    color: var(--game2048-text);
+}
+
+.game2048__modal-message--info {
+    background: color-mix(in srgb, var(--game2048-accent) 10%, transparent);
+    border-left: 3px solid var(--game2048-accent);
+    padding: 0.75rem;
+    border-radius: 4px;
+}
+
+.game2048__modal-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.game2048__modal-stat {
+    flex: 1;
+    background: color-mix(in srgb, var(--game2048-accent) 5%, transparent);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.game2048__modal-stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--game2048-text);
+    opacity: 0.6;
+    margin-bottom: 0.5rem;
+}
+
+.game2048__modal-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--game2048-accent);
+}
+
+.game2048__modal-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.game2048__modal-actions .game2048__btn {
+    flex: 1;
+}
+
+/* ======================
+   Responsive Design
+   ====================== */
+@media (max-width: 480px) {
+    .game2048__container {
+        padding: 1rem 0.75rem;
+        gap: 1rem;
+    }
+
+    .game2048__tile {
+        font-size: 1.5rem;
+    }
+
+    .game2048__tile[data-value="2"],
+    .game2048__tile[data-value="4"],
+    .game2048__tile[data-value="8"] { font-size: 1.75rem; }
+
+    .game2048__tile[data-value="16"],
+    .game2048__tile[data-value="32"],
+    .game2048__tile[data-value="64"] { font-size: 1.5rem; }
+
+    .game2048__tile[data-value="128"],
+    .game2048__tile[data-value="256"],
+    .game2048__tile[data-value="512"] { font-size: 1.25rem; }
+
+    .game2048__tile[data-value="1024"],
+    .game2048__tile[data-value="2048"] { font-size: 1.1rem; }
+
+    .game2048__modal-content {
+        padding: 1.5rem;
+    }
+
+    .game2048__table {
+        font-size: 0.8rem;
+    }
+
+    .game2048__table th,
+    .game2048__table td {
+        padding: 0.5rem 0.25rem;
+    }
+}
+
+/* ======================
+   Reduced Motion
+   ====================== */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
