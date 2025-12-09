@@ -18,6 +18,9 @@
             this.hasWon = false;
             this.winTime = null;
             this.scoreSubmitted = false;
+            this.hasLost = false;
+            this.lastAddedTile = null;
+            this.lastMoveDirection = null;
 
             this.initBoard();
         }
@@ -28,7 +31,7 @@
 
         initBoard() {
             this.addRandomTile();
-            this.addRandomTile();
+            this.lastAddedTile = this.addRandomTile();
         }
 
         generateSessionToken() {
@@ -52,15 +55,20 @@
             }
 
             if (emptyCells.length === 0) {
-                return false;
+                return null;
             }
 
             const { r, c } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-            this.board[r][c] = Math.random() < 0.9 ? 2 : 4;
-            return true;
+            const value = Math.random() < 0.9 ? 2 : 4;
+            this.board[r][c] = value;
+            return { r, c, value };
         }
 
         move(direction) {
+            if (this.hasLost) {
+                return false; // Can't move after losing
+            }
+
             if (this.hasWon && this.scoreSubmitted) {
                 return false; // Can't move after score is submitted
             }
@@ -74,15 +82,22 @@
             this.board = this.applyMove(this.board, direction);
 
             if (JSON.stringify(this.board) === oldBoard) {
+                this.lastMoveDirection = null;
+                this.lastAddedTile = null;
                 return false; // No change, invalid move
             }
 
             this.moveCount++;
-            this.addRandomTile();
+            this.lastMoveDirection = direction;
+            this.lastAddedTile = this.addRandomTile();
 
             if (!this.hasWon && this.checkWin()) {
                 this.hasWon = true;
                 this.winTime = performance.now() - this.startTime;
+            }
+
+            if (!this.hasWon && this.checkLose()) {
+                this.hasLost = true;
             }
 
             return true;
@@ -267,6 +282,13 @@
             this.boardEl = document.querySelector('[data-board]');
             this.modalEl = document.querySelector('[data-modal]');
             this.srAnnounce = document.querySelector('[data-sr-announce]');
+            this.gameOverEl = document.querySelector('[data-game-over]');
+            this.boardSlideClasses = [
+                'game2048__board--slide-left',
+                'game2048__board--slide-right',
+                'game2048__board--slide-up',
+                'game2048__board--slide-down',
+            ];
 
             this.isLoggedIn = window.__FUN_AUTH_STATE__?.loggedIn || false;
 
@@ -359,6 +381,7 @@
                     this.timer.start();
                 }
 
+                this.animateBoard(direction);
                 this.render();
 
                 // Check win condition
@@ -368,8 +391,9 @@
                 }
 
                 // Check lose condition
-                if (!this.game.hasWon && this.game.checkLose()) {
-                    this.announce('게임 오버! 더 이상 움직일 수 없습니다.');
+                if (this.game.hasLost) {
+                    this.timer.stop();
+                    this.showGameOver();
                 }
             }
         }
@@ -393,6 +417,9 @@
                         tile.textContent = value;
                         tile.style.setProperty('--tile-r', r);
                         tile.style.setProperty('--tile-c', c);
+                        if (this.game.lastAddedTile && this.game.lastAddedTile.r === r && this.game.lastAddedTile.c === c) {
+                            tile.classList.add('game2048__tile--new');
+                        }
                     }
 
                     this.boardEl.appendChild(tile);
@@ -416,6 +443,15 @@
         closeModal() {
             this.modalEl.classList.remove('game2048__modal--visible');
             this.modalEl.setAttribute('aria-hidden', 'true');
+        }
+
+        showGameOver() {
+            if (this.gameOverEl) {
+                this.gameOverEl.hidden = false;
+                this.gameOverEl.classList.add('game2048__overlay--visible');
+            }
+            this.announce('게임 오버! 더 이상 움직일 수 없습니다.');
+            alert('게임 오버! 더 이상 움직일 수 없습니다.');
         }
 
         async submitScore() {
@@ -548,6 +584,10 @@
             if (confirm('새 게임을 시작하시겠습니까? 현재 진행 중인 게임은 저장되지 않습니다.')) {
                 this.game = new Game2048();
                 this.timer.reset();
+                if (this.gameOverEl) {
+                    this.gameOverEl.classList.remove('game2048__overlay--visible');
+                    this.gameOverEl.hidden = true;
+                }
                 this.render();
                 this.announce('새 게임이 시작되었습니다.');
             }
@@ -563,6 +603,21 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        animateBoard(direction) {
+            if (!direction) return;
+
+            const className = `game2048__board--slide-${direction}`;
+            this.boardEl.classList.remove(...this.boardSlideClasses);
+
+            // Restart animation
+            this.boardEl.getBoundingClientRect();
+
+            this.boardEl.classList.add(className);
+            this.boardEl.addEventListener('animationend', () => {
+                this.boardEl.classList.remove(className);
+            }, { once: true });
         }
     }
 

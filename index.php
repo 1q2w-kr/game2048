@@ -73,6 +73,9 @@ foreach ($headerPaths as $path) {
         <div class="game2048__board" data-board aria-label="게임 보드">
             <!-- Tiles will be dynamically rendered here -->
         </div>
+        <div class="game2048__overlay" data-game-over hidden aria-live="assertive">
+            게임 오버
+        </div>
     </div>
 
     <!-- Mobile controls -->

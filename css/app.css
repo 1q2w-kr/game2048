@@ -159,6 +159,7 @@ html, body {
     width: 100%;
     max-width: 420px;
     margin: 0 auto;
+    position: relative;
 }
 
 .game2048__board {
@@ -170,6 +171,8 @@ html, body {
     grid-template-rows: repeat(4, 1fr);
     gap: var(--game2048-tile-gap);
     aspect-ratio: 1;
+    overflow: hidden;
+    will-change: transform;
 }
 
 .game2048__tile {
@@ -184,7 +187,7 @@ html, body {
     transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
-.game2048__tile--filled {
+.game2048__tile--new {
     animation: tile-appear 0.2s ease;
 }
 
@@ -201,6 +204,36 @@ html, body {
 .game2048__tile[data-value="1024"] { background: var(--tile-1024); color: var(--tile-text-light); font-size: 1.75rem; }
 .game2048__tile[data-value="2048"] { background: var(--tile-2048); color: var(--tile-text-light); font-size: 1.75rem; }
 
+.game2048__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.7);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-radius: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    text-align: center;
+    padding: 1rem;
+}
+
+.game2048__overlay--visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.game2048__board--slide-left { animation: board-slide-left 0.16s ease; }
+.game2048__board--slide-right { animation: board-slide-right 0.16s ease; }
+.game2048__board--slide-up { animation: board-slide-up 0.16s ease; }
+.game2048__board--slide-down { animation: board-slide-down 0.16s ease; }
+
 @keyframes tile-appear {
     from {
         transform: scale(0);
@@ -210,6 +243,30 @@ html, body {
         transform: scale(1);
         opacity: 1;
     }
+}
+
+@keyframes board-slide-left {
+    0% { transform: translateX(0); }
+    45% { transform: translateX(-12px); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes board-slide-right {
+    0% { transform: translateX(0); }
+    45% { transform: translateX(12px); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes board-slide-up {
+    0% { transform: translateY(0); }
+    45% { transform: translateY(-12px); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes board-slide-down {
+    0% { transform: translateY(0); }
+    45% { transform: translateY(12px); }
+    100% { transform: translateY(0); }
 }
 
 /* ======================
