@@ -60,6 +60,9 @@ if (!isset($conn)) {
     jsonError('database_error', 'Database connection failed', 500);
 }
 
+// Auto-run migrations if needed
+ensureDatabaseSchema($conn);
+
 // Get request method and action
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
@@ -323,4 +326,70 @@ function jsonError($error, $message, $code = 400) {
         'message' => $message,
     ], JSON_UNESCAPED_UNICODE);
     exit;
+}
+
+/**
+ * Ensure database schema is initialized
+ * Auto-runs migrations if game2048_scores table doesn't exist
+ */
+function ensureDatabaseSchema($conn) {
+    static $checked = false;
+
+    if ($checked) {
+        return;
+    }
+
+    $checked = true;
+
+    try {
+        // Check if game2048_scores table exists
+        $result = $conn->query("SHOW TABLES LIKE 'game2048_scores'");
+
+        if ($result && $result->num_rows > 0) {
+            // Table exists, no migration needed
+            return;
+        }
+
+        // Table doesn't exist, run migration
+        $migrationPaths = [
+            '/www/fun/game2048/db/migrations/0001_init.sql',
+            __DIR__ . '/../db/migrations/0001_init.sql',
+        ];
+
+        $migrationFile = null;
+        foreach ($migrationPaths as $path) {
+            if (file_exists($path)) {
+                $migrationFile = $path;
+                break;
+            }
+        }
+
+        if (!$migrationFile) {
+            error_log('game2048: Migration file not found');
+            return;
+        }
+
+        $sql = file_get_contents($migrationFile);
+        if ($sql === false) {
+            error_log('game2048: Failed to read migration file');
+            return;
+        }
+
+        // Execute migration
+        if ($conn->multi_query($sql)) {
+            // Clear all results
+            do {
+                if ($result = $conn->store_result()) {
+                    $result->free();
+                }
+            } while ($conn->more_results() && $conn->next_result());
+
+            error_log('game2048: Database schema initialized successfully');
+        } else {
+            error_log('game2048: Migration failed - ' . $conn->error);
+        }
+
+    } catch (Throwable $e) {
+        error_log('game2048: Database schema check failed - ' . $e->getMessage());
+    }
 }

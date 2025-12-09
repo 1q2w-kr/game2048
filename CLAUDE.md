@@ -60,6 +60,29 @@ fun/game2048/
 - `idx_member_history (member_srl, created_at DESC)` - Personal history
 - `uq_session_token` - Prevent duplicates
 
+### Auto-Migration
+
+Database schema is **automatically initialized** on first API call. No manual intervention required.
+
+**How it works:**
+1. `api/game.php` calls `ensureDatabaseSchema($conn)` after DB connection
+2. Function checks if `game2048_scores` table exists using `SHOW TABLES`
+3. If missing, reads and executes `db/migrations/0001_init.sql`
+4. Uses `multi_query()` to handle multi-statement SQL
+5. Logs success/failure to PHP error log
+
+**Static guard:** `$checked` flag prevents redundant checks within same request.
+
+**Fallback paths:**
+- Production: `/www/fun/game2048/db/migrations/0001_init.sql`
+- Local: `__DIR__ . '/../db/migrations/0001_init.sql'`
+
+**Manual migration (if needed):**
+```bash
+# SSH to production or Docker exec locally
+mysql -u user -p database < /www/fun/game2048/db/migrations/0001_init.sql
+```
+
 ## API Design
 
 ### POST /fun/game2048/api/game.php

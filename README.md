@@ -92,14 +92,20 @@ GET /fun/game2048/api/game.php?action=history&limit=10
 ### Local Setup
 1. Ensure Docker stack is running (`docker compose up`)
 2. Navigate to `http://localhost:8000/fun/game2048/`
-3. Database migration is in `db/migrations/0001_init.sql`
+3. Database schema is **auto-initialized** on first API call
 
 ### Database Migration
-```bash
-# Connect to database container
-docker compose exec db mariadb -u ciiwol -p ciiwol
+The database schema is automatically created when the API is first accessed. No manual migration is required.
 
-# Run migration
+**How it works:**
+- On first API call, `ensureDatabaseSchema()` checks if `game2048_scores` table exists
+- If missing, automatically runs `db/migrations/0001_init.sql`
+- Logs success/failure to PHP error log
+
+**Manual migration (optional):**
+```bash
+# Only needed if auto-migration fails
+docker compose exec db mariadb -u ciiwol -p ciiwol
 source /var/www/html/fun/game2048/db/migrations/0001_init.sql
 ```
 
