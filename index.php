@@ -32,7 +32,7 @@ $isLoggedIn = !empty($sessionUser['loggedIn']);
     <link rel="stylesheet" href="/fun/common/header.css?v=1.0" />
 
     <!-- Service styles -->
-    <link rel="stylesheet" href="/fun/game2048/css/app.css?v=1.0" />
+    <link rel="stylesheet" href="/fun/game2048/css/app.css?v=1.1" />
 </head>
 <body class="game2048">
 <?php
@@ -175,6 +175,6 @@ foreach ($headerPaths as $path) {
 <script src="/fun/common/header.js" defer></script>
 
 <!-- Game scripts -->
-<script src="/fun/game2048/js/app.js?v=1.0" defer></script>
+<script src="/fun/game2048/js/app.js?v=1.1" defer></script>
 </body>
 </html>

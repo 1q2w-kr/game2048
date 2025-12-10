@@ -343,6 +343,10 @@
                 touchStartY = e.touches[0].clientY;
             }, { passive: true });
 
+            this.boardEl.addEventListener('touchmove', (e) => {
+                e.preventDefault(); // Prevent page scroll while swiping
+            }, { passive: false });
+
             this.boardEl.addEventListener('touchend', (e) => {
                 const deltaX = e.changedTouches[0].clientX - touchStartX;
                 const deltaY = e.changedTouches[0].clientY - touchStartY;

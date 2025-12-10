@@ -173,6 +173,7 @@ html, body {
     aspect-ratio: 1;
     overflow: hidden;
     will-change: transform;
+    touch-action: none;
 }
 
 .game2048__tile {
