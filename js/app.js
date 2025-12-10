@@ -283,6 +283,7 @@
             this.modalEl = document.querySelector('[data-modal]');
             this.srAnnounce = document.querySelector('[data-sr-announce]');
             this.gameOverEl = document.querySelector('[data-game-over]');
+            this.overlayNewGameBtn = document.querySelector('[data-overlay-new-game]');
             this.boardSlideClasses = [
                 'game2048__board--slide-left',
                 'game2048__board--slide-right',
@@ -374,6 +375,10 @@
             document.querySelector('[data-submit-score]')?.addEventListener('click', () => {
                 this.submitScore();
             });
+
+            this.overlayNewGameBtn?.addEventListener('click', () => {
+                this.newGame(true);
+            });
         }
 
         handleMove(direction) {
@@ -455,7 +460,6 @@
                 this.gameOverEl.classList.add('game2048__overlay--visible');
             }
             this.announce('게임 오버! 더 이상 움직일 수 없습니다.');
-            alert('게임 오버! 더 이상 움직일 수 없습니다.');
         }
 
         async submitScore() {
@@ -584,17 +588,18 @@
             return `${min}:${sec.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
         }
 
-        newGame() {
-            if (confirm('새 게임을 시작하시겠습니까? 현재 진행 중인 게임은 저장되지 않습니다.')) {
-                this.game = new Game2048();
-                this.timer.reset();
-                if (this.gameOverEl) {
-                    this.gameOverEl.classList.remove('game2048__overlay--visible');
-                    this.gameOverEl.hidden = true;
-                }
-                this.render();
-                this.announce('새 게임이 시작되었습니다.');
+        newGame(skipConfirm = false) {
+            if (!skipConfirm && !confirm('새 게임을 시작하시겠습니까? 현재 진행 중인 게임은 저장되지 않습니다.')) {
+                return;
             }
+            this.game = new Game2048();
+            this.timer.reset();
+            if (this.gameOverEl) {
+                this.gameOverEl.classList.remove('game2048__overlay--visible');
+                this.gameOverEl.hidden = true;
+            }
+            this.render();
+            this.announce('새 게임이 시작되었습니다.');
         }
 
         announce(message) {

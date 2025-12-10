@@ -74,7 +74,15 @@ foreach ($headerPaths as $path) {
             <!-- Tiles will be dynamically rendered here -->
         </div>
         <div class="game2048__overlay" data-game-over hidden aria-live="assertive">
-            게임 오버
+            <div class="game2048__overlay-box" role="alertdialog" aria-modal="true">
+                <p class="game2048__overlay-title">게임 오버</p>
+                <p class="game2048__overlay-text">더 이상 움직일 수 없습니다.</p>
+                <div class="game2048__overlay-actions">
+                    <button class="game2048__btn game2048__btn--primary" data-overlay-new-game>
+                        새 게임
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
