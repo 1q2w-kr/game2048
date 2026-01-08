@@ -61,7 +61,9 @@ if (!isset($conn)) {
 }
 
 // Auto-run migrations if needed
-ensureDatabaseSchema($conn);
+if (!ensureDatabaseSchema($conn)) {
+    jsonError('db_init_failed', 'Database schema initialization failed', 500);
+}
 
 // Get request method and action
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -336,18 +338,28 @@ function ensureDatabaseSchema($conn) {
     static $checked = false;
 
     if ($checked) {
-        return;
+        return true;
     }
 
     $checked = true;
 
     try {
-        // Check if game2048_scores table exists
-        $result = $conn->query("SHOW TABLES LIKE 'game2048_scores'");
+        $stmt = $conn->prepare(
+            "SELECT COUNT(*) AS cnt FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?"
+        );
+        if (!$stmt) {
+            error_log('game2048: schema check prepare failed - ' . $conn->error);
+            return false;
+        }
+        $table = 'game2048_scores';
+        $stmt->bind_param('s', $table);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res ? $res->fetch_assoc() : null;
+        $stmt->close();
 
-        if ($result && $result->num_rows > 0) {
-            // Table exists, no migration needed
-            return;
+        if ($row && (int) $row['cnt'] > 0) {
+            return true;
         }
 
         // Table doesn't exist, run migration
@@ -366,13 +378,13 @@ function ensureDatabaseSchema($conn) {
 
         if (!$migrationFile) {
             error_log('game2048: Migration file not found');
-            return;
+            return false;
         }
 
         $sql = file_get_contents($migrationFile);
         if ($sql === false) {
             error_log('game2048: Failed to read migration file');
-            return;
+            return false;
         }
 
         // Execute migration
@@ -387,9 +399,12 @@ function ensureDatabaseSchema($conn) {
             error_log('game2048: Database schema initialized successfully');
         } else {
             error_log('game2048: Migration failed - ' . $conn->error);
+            return false;
         }
 
     } catch (Throwable $e) {
         error_log('game2048: Database schema check failed - ' . $e->getMessage());
+        return false;
     }
+    return true;
 }
