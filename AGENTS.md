@@ -22,7 +22,7 @@ docker compose logs -f web
 docker compose exec db mariadb -u ciiwol -p ciiwol
 
 # Run migration
-source /var/www/html/fun/game2048/db/migrations/0001_init.sql
+source /var/www/html/fun/game2048/dbinit/0001_init.sql
 
 # Verify table
 SHOW TABLES LIKE 'game2048_scores';
@@ -299,4 +299,4 @@ error_log('Member SRL: ' . $memberSrl);
 - **Rhymix Docs**: https://www.rhymix.org
 - **2048 Original**: https://github.com/gabrielecirulli/2048 (reference for game logic)
 - **Fun Common Patterns**: See `/fun/common/AGENTS.md`
-- **Database Schema**: See `db/migrations/0001_init.sql`
+- **Database Schema**: See `dbinit/0001_init.sql`

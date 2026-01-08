@@ -99,14 +99,14 @@ The database schema is automatically created when the API is first accessed. No 
 
 **How it works:**
 - On first API call, `ensureDatabaseSchema()` checks if `game2048_scores` table exists
-- If missing, automatically runs `db/migrations/0001_init.sql`
+- If missing, automatically runs `dbinit/0001_init.sql`
 - Logs success/failure to PHP error log
 
 **Manual migration (optional):**
 ```bash
 # Only needed if auto-migration fails
 docker compose exec db mariadb -u ciiwol -p ciiwol
-source /var/www/html/fun/game2048/db/migrations/0001_init.sql
+source /var/www/html/fun/game2048/dbinit/0001_init.sql
 ```
 
 ## Security

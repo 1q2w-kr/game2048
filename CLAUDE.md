@@ -67,20 +67,20 @@ Database schema is **automatically initialized** on first API call. No manual in
 **How it works:**
 1. `api/game.php` calls `ensureDatabaseSchema($conn)` after DB connection
 2. Function checks if `game2048_scores` table exists using `SHOW TABLES`
-3. If missing, reads and executes `db/migrations/0001_init.sql`
+3. If missing, reads and executes `dbinit/0001_init.sql`
 4. Uses `multi_query()` to handle multi-statement SQL
 5. Logs success/failure to PHP error log
 
 **Static guard:** `$checked` flag prevents redundant checks within same request.
 
 **Fallback paths:**
-- Production: `/www/fun/game2048/db/migrations/0001_init.sql`
-- Local: `__DIR__ . '/../db/migrations/0001_init.sql'`
+- Production: `/www/fun/game2048/dbinit/0001_init.sql`
+- Local: `__DIR__ . '/../dbinit/0001_init.sql'`
 
 **Manual migration (if needed):**
 ```bash
 # SSH to production or Docker exec locally
-mysql -u user -p database < /www/fun/game2048/db/migrations/0001_init.sql
+mysql -u user -p database < /www/fun/game2048/dbinit/0001_init.sql
 ```
 
 ## API Design
@@ -260,7 +260,7 @@ This service uses the root workspace's GitHub Actions workflow for FTP deploymen
 4. GitHub Actions will deploy to `/www/fun/game2048/`
 
 **Database Migration**:
-Run `db/migrations/0001_init.sql` manually on production database after initial deployment.
+Run `dbinit/0001_init.sql` manually on production database after initial deployment.
 
 ## Dependencies
 
