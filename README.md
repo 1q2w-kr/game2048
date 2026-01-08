@@ -109,6 +109,13 @@ docker compose exec db mariadb -u ciiwol -p ciiwol
 source /var/www/html/fun/game2048/dbinit/0001_init.sql
 ```
 
+### DB Init Quickstart
+1) Apply once:
+```bash
+mysql -u <user> -p <db> < fun/game2048/dbinit/0001_init.sql
+```
+2) The API checks `information_schema` and runs init only if the table is missing.
+
 ## Security
 
 - Session token uniqueness prevents duplicate submissions
