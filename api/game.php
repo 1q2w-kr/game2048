@@ -352,8 +352,8 @@ function ensureDatabaseSchema($conn) {
 
         // Table doesn't exist, run migration
         $migrationPaths = [
-            '/www/fun/game2048/db/migrations/0001_init.sql',
-            __DIR__ . '/../db/migrations/0001_init.sql',
+            '/www/fun/game2048/dbinit/0001_init.sql',
+            __DIR__ . '/../dbinit/0001_init.sql',
         ];
 
         $migrationFile = null;
