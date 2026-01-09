@@ -16,6 +16,21 @@ foreach ($authBridgePaths as $path) {
     }
 }
 
+// Fun service guard
+$guardPaths = [
+    '/www/fun/common/service/guard.php',
+    __DIR__ . '/../common/service/guard.php',
+];
+foreach ($guardPaths as $path) {
+    if (file_exists($path)) {
+        require_once $path;
+        break;
+    }
+}
+if (function_exists('fun_service_require_enabled')) {
+    fun_service_require_enabled('game2048');
+}
+
 // Get current user from Rhymix
 $sessionUser = function_exists('rhxCurrentUser') ? rhxCurrentUser() : ['loggedIn' => false];
 $isLoggedIn = !empty($sessionUser['loggedIn']);
