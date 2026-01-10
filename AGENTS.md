@@ -16,6 +16,9 @@ http://localhost:8000/fun/game2048/
 docker compose logs -f web
 ```
 
+## Service Status Guard
+- `index.php` and `api/game.php` must call `fun_service_require_enabled('game2048')` from `fun/common/service/guard.php` so `operating`/`construction`/`blocked` states apply.
+
 ### Database Migration
 ```bash
 # Connect to DB container
