@@ -45,6 +45,7 @@ $isLoggedIn = !empty($sessionUser['loggedIn']);
 
     <!-- Shared styles -->
     <link rel="stylesheet" href="/fun/common/header.css?v=1.0" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" crossorigin="anonymous"></script>
 
     <!-- Service styles -->
     <link rel="stylesheet" href="/fun/game2048/css/app.css?v=1.1" />
@@ -147,6 +148,22 @@ foreach ($headerPaths as $path) {
     </div>
     <?php endif; ?>
 </main>
+
+<section class="oneq2w-ad" data-oneq2w-ad data-ad-slot-key="fun_main" aria-label="광고">
+    <p class="oneq2w-ad__label">AD</p>
+    <ins class="adsbygoogle" style="display:block"></ins>
+    <p class="oneq2w-ad__status" data-oneq2w-ad-status>광고를 준비하는 중입니다.</p>
+</section>
+
+<footer class="fun-footer" role="contentinfo">
+    <div class="fun-container">
+        <a href="#" data-cookie-settings>쿠키 설정</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://1q2w.kr/privacy" target="_blank" rel="noopener">개인정보처리방침</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://1q2w.kr/terms" target="_blank" rel="noopener">이용약관</a>
+    </div>
+</footer>
 
 <!-- Win modal -->
 <div class="game2048__modal" data-modal aria-hidden="true" role="dialog">
