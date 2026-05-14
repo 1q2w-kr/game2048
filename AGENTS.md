@@ -102,7 +102,7 @@ render() {
    - Verify no leaderboard submission option
 
 2. **Logged-in Play**
-   - Log in to Rhymix
+   - Log in to Gnuboard7
    - Play until win
    - Verify submit button appears
    - Submit score
@@ -299,7 +299,7 @@ error_log('Member SRL: ' . $memberSrl);
 
 ## Resources
 
-- **Rhymix Docs**: https://www.rhymix.org
+- **Gnuboard7 Docs**: https://www.rhymix.org
 - **2048 Original**: https://github.com/gabrielecirulli/2048 (reference for game logic)
 - **Fun Common Patterns**: See `/fun/common/AGENTS.md`
 - **Database Schema**: See `dbinit/0001_init.sql`

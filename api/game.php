@@ -23,10 +23,10 @@ if ($origin && !in_array($host, $allowedHosts, true)) {
     jsonError('invalid_origin', 'Request origin not allowed', 403);
 }
 
-// Integrate with Rhymix
+// Integrate with Gnuboard7
 $authBridgePaths = [
-    '/www/fun/common/rhymix_bridge.php',
-    __DIR__ . '/../../common/rhymix_bridge.php',
+    '/www/fun/common/gnuboard_bridge.php',
+    __DIR__ . '/../../common/gnuboard_bridge.php',
 ];
 
 foreach ($authBridgePaths as $path) {
@@ -52,7 +52,7 @@ if (function_exists('fun_service_require_enabled')) {
 }
 
 // Get current user
-$sessionUser = function_exists('rhxCurrentUser') ? rhxCurrentUser() : ['loggedIn' => false];
+$sessionUser = function_exists('g7CurrentUser') ? g7CurrentUser() : ['loggedIn' => false];
 $isLoggedIn = !empty($sessionUser['loggedIn']);
 $memberSrl = $sessionUser['memberSrl'] ?? null;
 

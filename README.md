@@ -41,7 +41,7 @@
 - **Frontend**: Vanilla JavaScript (no dependencies)
 - **Backend**: PHP 8.4 with MySQLi
 - **Database**: MariaDB 10.11
-- **Auth**: Rhymix CMS integration
+- **Auth**: Gnuboard7 CMS integration
 
 ## File Structure
 

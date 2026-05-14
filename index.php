@@ -3,10 +3,10 @@
  * 2048 Game - Main Entry Point
  */
 
-// Integrate with Rhymix authentication
+// Integrate with Gnuboard7 authentication
 $authBridgePaths = [
-    '/www/fun/common/rhymix_bridge.php',
-    __DIR__ . '/../common/rhymix_bridge.php',
+    '/www/fun/common/gnuboard_bridge.php',
+    __DIR__ . '/../common/gnuboard_bridge.php',
 ];
 
 foreach ($authBridgePaths as $path) {
@@ -31,8 +31,8 @@ if (function_exists('fun_service_require_enabled')) {
     fun_service_require_enabled('game2048');
 }
 
-// Get current user from Rhymix
-$sessionUser = function_exists('rhxCurrentUser') ? rhxCurrentUser() : ['loggedIn' => false];
+// Get current user from Gnuboard7
+$sessionUser = function_exists('g7CurrentUser') ? g7CurrentUser() : ['loggedIn' => false];
 $isLoggedIn = !empty($sessionUser['loggedIn']);
 ?>
 <!DOCTYPE html>
@@ -197,7 +197,7 @@ foreach ($headerPaths as $path) {
             로그인하시면 순위표에 기록을 등록할 수 있습니다.
         </div>
         <div class="game2048__modal-actions">
-            <a href="/?act=dispMemberLoginForm" class="game2048__btn game2048__btn--primary">
+            <a href="/login" class="game2048__btn game2048__btn--primary">
                 로그인
             </a>
             <button class="game2048__btn game2048__btn--secondary" data-continue>
