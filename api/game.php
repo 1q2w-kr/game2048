@@ -244,14 +244,15 @@ function handleSubmit($conn, $payload, $memberSrl) {
  */
 function handleLeaderboard($conn, $params) {
     $limit = min(100, max(1, (int)($params['limit'] ?? 50)));
+    $usersTable = funApiG7UsersTable();
 
     $sql = "SELECT
                 s.completion_time_total_ms,
                 s.move_count,
                 s.created_at,
-                COALESCE(m.nick_name, '익명') AS nickname
+                COALESCE(NULLIF(u.nickname, ''), NULLIF(u.name, ''), u.email, '익명') AS nickname
             FROM game2048_scores s
-            LEFT JOIN rhymix_member m ON s.member_srl = m.member_srl
+            LEFT JOIN $usersTable u ON s.member_srl = u.id
             WHERE s.member_srl IS NOT NULL
             ORDER BY s.completion_time_total_ms ASC, s.move_count ASC
             LIMIT ?";
@@ -275,6 +276,12 @@ function handleLeaderboard($conn, $params) {
     }
 
     jsonSuccess(['scores' => $scores]);
+}
+
+function funApiG7UsersTable(): string
+{
+    $table = function_exists('fun_auth_g7_table') ? fun_auth_g7_table('users') : 'g7_users';
+    return '`' . str_replace('`', '``', $table) . '`';
 }
 
 /**

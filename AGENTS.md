@@ -299,7 +299,7 @@ error_log('Member SRL: ' . $memberSrl);
 
 ## Resources
 
-- **Gnuboard7 Docs**: https://www.rhymix.org
+- **Gnuboard7 Docs**: see the upstream `g7/README.md` and `g7/INSTALL.md`
 - **2048 Original**: https://github.com/gabrielecirulli/2048 (reference for game logic)
 - **Fun Common Patterns**: See `/fun/common/AGENTS.md`
 - **Database Schema**: See `dbinit/0001_init.sql`
