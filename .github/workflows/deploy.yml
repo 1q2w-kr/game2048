@@ -55,12 +55,6 @@ jobs:
             echo "port=21"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Install lftp
-        run: |
-          set -euxo pipefail
-          sudo apt-get update
-          sudo apt-get install -y lftp
-
       - name: Deploy to Cafe24 via FTP
         env:
           FTP_SERVER: ${{ steps.cfg.outputs.server }}
@@ -70,13 +64,97 @@ jobs:
           FTP_DIR: ${{ steps.cfg.outputs.dir }}
         run: |
           set -euo pipefail
-          lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" "$FTP_SERVER" <<EOF
-          set ftp:ssl-allow no
-          set ssl:verify-certificate no
-          set net:max-retries 2
-          set net:timeout 20
-          set xfer:clobber on
-          cd "$FTP_DIR"
-          mirror -R . . --verbose=3 --parallel=1 --only-newer --no-perms --exclude-glob .git* --exclude-glob .DS_Store
-          bye
-          EOF
+          python3 <<'PY'
+          import ftplib
+          import os
+          from pathlib import Path
+
+          server = os.environ['FTP_SERVER']
+          username = os.environ['FTP_USERNAME']
+          password = os.environ['FTP_PASSWORD']
+          port = int(os.environ.get('FTP_PORT') or '21')
+          target = os.environ['FTP_DIR'].strip()
+
+          skip_dirs = {'.git', '.github', 'scripts', 'script', 'tests', 'test', 'db', 'node_modules'}
+          skip_files = {
+              '.DS_Store', 'db.local.php', 'config.local.php', 'README.md', 'README.MD',
+              'README_KR.md', 'README_KO.md', 'AGENTS.md', 'agents.md', 'SPEC.md',
+              'TODO.md', 'DOCKER.md', 'docker-compose.yml', 'Dockerfile', 'Makefile', 'test.txt',
+          }
+          skip_paths = {'config/local.php'}
+
+          def candidate_paths(path):
+              clean = path.strip()
+              values = []
+              def add(value):
+                  value = value.strip()
+                  if value and value not in values:
+                      values.append(value)
+              add(clean)
+              add(clean.lstrip('/'))
+              if clean.startswith('/www/'):
+                  add(clean[len('/www/'):])
+                  add('/ciiwol' + clean)
+                  add('ciiwol' + clean)
+              return values
+
+          def cwd_path(ftp, path):
+              if path.startswith('/'):
+                  ftp.cwd('/')
+              for part in path.strip('/').split('/'):
+                  if part:
+                      ftp.cwd(part)
+
+          def ensure_remote_dir(ftp, parts):
+              for part in parts:
+                  if not part:
+                      continue
+                  try:
+                      ftp.cwd(part)
+                  except ftplib.error_perm:
+                      ftp.mkd(part)
+                      ftp.cwd(part)
+
+          ftp = ftplib.FTP()
+          ftp.connect(server, port, timeout=30)
+          ftp.login(username, password)
+          ftp.set_pasv(True)
+
+          selected = None
+          errors = []
+          for candidate in candidate_paths(target):
+              try:
+                  cwd_path(ftp, candidate)
+                  selected = ftp.pwd()
+                  break
+              except Exception as exc:
+                  errors.append(f'{candidate}: {exc}')
+          if selected is None:
+              try:
+                  here = ftp.pwd()
+                  entries = ', '.join(ftp.nlst()[:20])
+              except Exception:
+                  here = '(unknown)'
+                  entries = '(unavailable)'
+              raise SystemExit('No deploy target matched. pwd=' + here + ' entries=' + entries + ' errors=' + ' | '.join(errors))
+
+          root = Path('.').resolve()
+          uploaded = 0
+          for current, dirs, files in os.walk(root):
+              dirs[:] = [d for d in dirs if d not in skip_dirs]
+              current_path = Path(current)
+              rel = current_path.relative_to(root)
+              ftp.cwd(selected)
+              if rel.parts:
+                  ensure_remote_dir(ftp, rel.parts)
+              for name in files:
+                  local = current_path / name
+                  rel_file = local.relative_to(root).as_posix()
+                  if name in skip_files or rel_file in skip_paths:
+                      continue
+                  with local.open('rb') as handle:
+                      ftp.storbinary('STOR ' + name, handle)
+                  uploaded += 1
+          ftp.quit()
+          print(f'Uploaded {uploaded} files to {selected}')
+          PY
