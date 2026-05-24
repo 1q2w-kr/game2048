@@ -6,7 +6,6 @@
 return [
     'slug' => 'game2048',
     'name' => '2048 Game',
-    'description' => '고전 2048 퍼즐 게임. 최단 시간 기록에 도전하세요!',
     'version' => '1.0.0',
     'features' => [
         'requires_login' => false,           // Anyone can play
