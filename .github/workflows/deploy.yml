@@ -42,7 +42,7 @@ jobs:
           case "$SLUG" in
             pick-a-ju) SLUG="pickaju" ;;
           esac
-          DIR="/www/fun/${SLUG}/"
+          DIR="fun/${SLUG}/"
           case "$DIR" in
             */) : ;;
             *) DIR="${DIR%/}/" ;;
