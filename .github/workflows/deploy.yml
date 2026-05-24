@@ -76,8 +76,7 @@ jobs:
           set net:max-retries 2
           set net:timeout 20
           set xfer:clobber on
-          mkdir -p "$FTP_DIR" || true
-          cd "$FTP_DIR"
-          mirror -R . . --verbose=3 --parallel=1 --only-newer --no-perms --exclude-glob .git* --exclude-glob .DS_Store
+          mkdir -p "$FTP_DIR"
+          mirror -R . "$FTP_DIR" --verbose=3 --parallel=4 --only-newer --exclude-glob .git* --exclude-glob .DS_Store
           bye
           EOF
