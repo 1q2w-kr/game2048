@@ -42,7 +42,7 @@ jobs:
           case "$SLUG" in
             pick-a-ju) SLUG="pickaju" ;;
           esac
-          DIR="www/fun/${SLUG}/"
+          DIR="ciiwol/www/fun/${SLUG}/"
           case "$DIR" in
             */) : ;;
             *) DIR="${DIR%/}/" ;;
@@ -52,31 +52,44 @@ jobs:
             echo "username=$USERNAME"
             echo "password=$PASSWORD"
             echo "dir=$DIR"
+            echo "proto=ftp"
             echo "port=21"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Install lftp
-        run: |
-          set -euxo pipefail
-          sudo apt-get update
-          sudo apt-get install -y lftp
-
       - name: Deploy to Cafe24 via FTP
-        env:
-          FTP_SERVER: ${{ steps.cfg.outputs.server }}
-          FTP_USERNAME: ${{ steps.cfg.outputs.username }}
-          FTP_PASSWORD: ${{ steps.cfg.outputs.password }}
-          FTP_PORT: ${{ steps.cfg.outputs.port }}
-          FTP_DIR: ${{ steps.cfg.outputs.dir }}
-        run: |
-          set -euo pipefail
-          lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" "$FTP_SERVER" <<EOF
-          set ftp:ssl-allow no
-          set ssl:verify-certificate no
-          set net:max-retries 2
-          set net:timeout 20
-          set xfer:clobber on
-          mkdir -p "$FTP_DIR"
-          mirror -R . "$FTP_DIR" --verbose=3 --parallel=4 --only-newer --exclude-glob .git* --exclude-glob .DS_Store
-          bye
-          EOF
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ steps.cfg.outputs.server }}
+          username: ${{ steps.cfg.outputs.username }}
+          password: ${{ steps.cfg.outputs.password }}
+          protocol: ${{ steps.cfg.outputs.proto }}
+          server-dir: ${{ steps.cfg.outputs.dir }}
+          port: ${{ steps.cfg.outputs.port }}
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git/**
+            **/.github/**
+            **/.DS_Store
+            scripts/**
+            script/**
+            tests/**
+            test/**
+            db/**
+            node_modules/**
+            db.local.php
+            config.local.php
+            config/local.php
+            README.md
+            README.MD
+            README_KR.md
+            README_KO.md
+            AGENTS.md
+            agents.md
+            SPEC.md
+            TODO.md
+            DOCKER.md
+            docker-compose.yml
+            Dockerfile
+            Makefile
+            test.txt
